@@ -56,14 +56,20 @@ export function chunkResumeText(cleanText) {
       const isTechLine = (line) =>
         line.toLowerCase().startsWith("tech");
 
-      for (let line of content) {
-        const isNewProject =
-          !isBullet(line) &&
-          !isTechLine(line) &&
-          currentProject.length > 0;
+      const isProjectTitle = (line) =>
+        !isBullet(line) &&
+        !isTechLine(line) &&
+        (
+          line.toLowerCase().includes("github") ||
+          line.toLowerCase().includes("project") ||
+          line.includes("|") ||
+          line.length < 120 // short titles
+        );
 
-        // 🔥 push previous project
-        if (isNewProject) {
+      for (let line of content) {
+
+        // 🔥 new project only if clearly a title
+        if (isProjectTitle(line) && currentProject.length > 0) {
           documents.push(
             new Document({
               pageContent: currentProject.join("\n"),
@@ -76,7 +82,6 @@ export function chunkResumeText(cleanText) {
         currentProject.push(line);
       }
 
-      // 🔥 push last project
       if (currentProject.length > 0) {
         documents.push(
           new Document({
@@ -86,7 +91,6 @@ export function chunkResumeText(cleanText) {
         );
       }
     }
-
     // =========================
     // 🧠 SKILLS (FULL BLOCK)
     // =========================

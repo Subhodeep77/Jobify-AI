@@ -12,17 +12,24 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
     .filter(m => m.role === "user")
     .map(m => `${m.content}`)
     .join("\n");
-  const preferencesText = JSON.stringify(memory.preferences || {});
 
+  console.log('historyText: ', historyText)
+  console.log('preferences: ', memory.preferences)
+  const preferencesText = JSON.stringify(memory.preferences || {});
+  console.log('preferncesText: ', preferencesText)
 
   // 🔹 STEP 1: Resume Context
   sendEvent?.("agent_step", { tool: "resume", status: "start" });
   const { context, cleanContext } = await getResumeContext(userId, query);
+  console.log('context: ', context)
+  console.log('cleanContext: ', cleanContext)
   sendEvent?.("agent_step", { tool: "resume", status: "end" });
 
   // 🔹 STEP 2: Jobs
   sendEvent?.("agent_step", { tool: "jobs", status: "start" });
+  console.log('query: ', query)
   const jobs = await getJobs(query);
+  console.log('jobs: ', jobs)
   sendEvent?.("agent_step", { tool: "jobs", status: "end" });
 
   if (!jobs.length || !cleanContext) {
@@ -31,15 +38,24 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
 
 
   const resumeSignal = cleanContext.slice(0, 2000);
+  console.log('resume signal: ', resumeSignal);
+  
 
   // 🔹 STEP 3: Semantic Matching
   const matchedJobs = await matchJobs(resumeSignal, jobs);
+  console.log("🧠 Resume context length:", cleanContext?.length);
+  console.log("💼 Jobs fetched:", jobs.length);
+  console.log("📊 Matched jobs:", matchedJobs.length);
 
   // 🔹 STEP 4: Missing Skills
   const missingSkills = await suggestImprovements(resumeSignal, jobs);
+  console.log('missingSkills: ', missingSkills);
+  
 
   // 🔥 Limit jobs for LLM
   const topJobs = matchedJobs.slice(0, 5);
+  console.log('Topjobs: ', topJobs)
+
 
   // 🔥 Compact jobs
   const compactJobs = topJobs.map(j => ({
@@ -48,6 +64,8 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
     match_score: j.match_score,
     description: j.description?.slice(0, 200)
   }));
+
+  console.log('Compactjobs: ', compactJobs)
 
   // 🔹 STEP 5: Prompt
   const prompt = `
@@ -104,6 +122,7 @@ Return JSON ONLY:
 
   // 🔹 STEP 6: LLM CALL
   const raw = await geminiCall(prompt);
+  console.log('gemini_res_raw',raw)
 
   const cleaned = raw
     .replace(/```json|```/g, "")
@@ -149,6 +168,7 @@ Return JSON ONLY:
       }))
     };
   }
-
+  console.log('validated_data: ', validated.data);
+  
   return validated.data;
 };
