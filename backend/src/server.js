@@ -1,33 +1,46 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
-import connectDB from "./configs/db.js";
+import connectDB from "./config/db.js";
 
+// 🔹 Routes
 import authRoutes from "./routes/auth.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
-import chatRoutes from "./routes/chat.routes.js";
+import chatRoutes from "./routes/chat.routes.js"; // ✅ FIXED
 
-import errorMiddleware from "./middleware/error.middleware.js";
+// 🔹 Middleware
+import errorMiddleware from "./middlewares/error.middleware.js"; // ✅ FIXED
 
-dotenv.config();
+
 connectDB();
 
 const app = express();
 
+// 🔹 Core middleware
 app.use(cors());
 app.use(express.json());
 
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-}));
+// 🔹 Rate limiter
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+  })
+);
 
+// 🔹 Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/chat", chatRoutes);
+app.get("/", (req, res) => {
+  res.send("API running");
+});
 
+// 🔹 Error handler (must be last)
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

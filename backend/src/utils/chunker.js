@@ -1,40 +1,127 @@
-import { Document } from "langchain/document";
+import { Document } from "@langchain/core/documents";
 
-const splitIntoChunks = (text, size = 500, overlap = 100) => {
-  const chunks = [];
+const SECTION_HEADERS = [
+  "education",
+  "projects",
+  "skills",
+  "achievements",
+  "leadership and volunteering",
+  "profiles"
+];
 
-  for (let i = 0; i < text.length; i += size - overlap) {
-    chunks.push(text.slice(i, i + size));
-  }
-
-  return chunks;
+// detect section header
+const isSection = (line) => {
+  const lower = line.toLowerCase().trim();
+  return SECTION_HEADERS.includes(lower);
 };
 
-// 🔹 Main chunking function
 export function chunkResumeText(cleanText) {
-  const SECTION_REGEX =
-    /(EXPERIENCE|PROJECTS|SKILLS|EDUCATION|SUMMARY|CERTIFICATIONS|ACHIEVEMENTS)/i;
+  const lines = cleanText.split("\n");
 
-  const parts = cleanText.split(SECTION_REGEX);
+  const sections = {};
+  let currentSection = "general";
+
+  // 🔹 Step 1: Build structured sections
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (isSection(trimmed)) {
+      currentSection = trimmed.toLowerCase();
+      sections[currentSection] = [];
+      continue;
+    }
+
+    if (!sections[currentSection]) {
+      sections[currentSection] = [];
+    }
+
+    sections[currentSection].push(trimmed);
+  }
 
   const documents = [];
 
-  for (let i = 1; i < parts.length; i += 2) {
-    const sectionName = parts[i]?.toLowerCase();
-    const content = parts[i + 1];
+  // 🔥 Step 2: Smart section handling
+  for (const [section, content] of Object.entries(sections)) {
 
-    if (!content) continue;
+    // =========================
+    // 🚀 PROJECT GROUPING (FIXED)
+    // =========================
+    if (section === "projects") {
+      let currentProject = [];
 
-    const chunks = splitIntoChunks(content);
+      const isBullet = (line) =>
+        line.startsWith("-") || line.startsWith("•");
 
-    for (const chunk of chunks) {
+      const isTechLine = (line) =>
+        line.toLowerCase().startsWith("tech");
+
+      for (let line of content) {
+        const isNewProject =
+          !isBullet(line) &&
+          !isTechLine(line) &&
+          currentProject.length > 0;
+
+        // 🔥 push previous project
+        if (isNewProject) {
+          documents.push(
+            new Document({
+              pageContent: currentProject.join("\n"),
+              metadata: { section }
+            })
+          );
+          currentProject = [];
+        }
+
+        currentProject.push(line);
+      }
+
+      // 🔥 push last project
+      if (currentProject.length > 0) {
+        documents.push(
+          new Document({
+            pageContent: currentProject.join("\n"),
+            metadata: { section }
+          })
+        );
+      }
+    }
+
+    // =========================
+    // 🧠 SKILLS (FULL BLOCK)
+    // =========================
+    else if (section === "skills") {
       documents.push(
         new Document({
-          pageContent: chunk.trim(),
-          metadata: {
-            section: sectionName,
-            length: chunk.length
-          }
+          pageContent: content.join("\n"),
+          metadata: { section }
+        })
+      );
+    }
+
+    // =========================
+    // 🏆 ACHIEVEMENTS + LEADERSHIP
+    // =========================
+    else if (
+      section === "achievements" ||
+      section === "leadership and volunteering"
+    ) {
+      documents.push(
+        new Document({
+          pageContent: content.join("\n"),
+          metadata: { section }
+        })
+      );
+    }
+
+    // =========================
+    // 📄 GENERAL / EDUCATION / OTHERS
+    // =========================
+    else {
+      documents.push(
+        new Document({
+          pageContent: content.join("\n"),
+          metadata: { section }
         })
       );
     }

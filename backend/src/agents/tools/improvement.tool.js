@@ -1,5 +1,3 @@
-// agents/tools/improvement.tool.js
-
 import { geminiCall } from "../../config/gemini.js";
 
 // 🔹 Fallback (rule-based)

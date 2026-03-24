@@ -11,6 +11,8 @@ export const geminiCall = async (prompt) => {
       }
     );
 
+    console.log('gemini_api_key: ',process.env.GEMINI_API_KEY)
+
     return res.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
   } catch (error) {

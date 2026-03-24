@@ -1,4 +1,4 @@
-import { getVectorStore } from "../configs/vectordb.js";
+import { getVectorStore } from "../config/vectordb.js";
 
 export const retrieveContext = async (userId, query) => {
   try {

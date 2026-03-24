@@ -1,11 +1,19 @@
 import { geminiCall } from "../config/gemini.js";
 import { getResumeContext } from "./tools/resume.tool.js";
-import { getJobs } from "./tools/jobs.tool.js";
+import { getJobs } from "./tools/job.tool.js";
 import { matchJobs } from "./tools/matcher.tool.js";
 import { suggestImprovements } from "./tools/improvement.tool.js";
 import { ResponseSchema } from "../schemas/agent.schema.js";
 
-export const runAgent = async (userId, query, sendEvent) => {
+export const runAgent = async (userId, query, sendEvent, memory = {}) => {
+
+  const historyText = (memory.history || [])
+    .slice(-6)
+    .filter(m => m.role === "user")
+    .map(m => `${m.content}`)
+    .join("\n");
+  const preferencesText = JSON.stringify(memory.preferences || {});
+
 
   // 🔹 STEP 1: Resume Context
   sendEvent?.("agent_step", { tool: "resume", status: "start" });
@@ -17,18 +25,29 @@ export const runAgent = async (userId, query, sendEvent) => {
   const jobs = await getJobs(query);
   sendEvent?.("agent_step", { tool: "jobs", status: "end" });
 
-  if (!jobs.length) {
+  if (!jobs.length || !cleanContext) {
     return { recommended_roles: [] };
   }
 
+
+  const resumeSignal = cleanContext.slice(0, 2000);
+
   // 🔹 STEP 3: Semantic Matching
-  const matchedJobs = await matchJobs(cleanContext, jobs);
+  const matchedJobs = await matchJobs(resumeSignal, jobs);
 
   // 🔹 STEP 4: Missing Skills
-  const missingSkills = await suggestImprovements(cleanContext, jobs);
+  const missingSkills = await suggestImprovements(resumeSignal, jobs);
 
   // 🔥 Limit jobs for LLM
   const topJobs = matchedJobs.slice(0, 5);
+
+  // 🔥 Compact jobs
+  const compactJobs = topJobs.map(j => ({
+    title: j.title,
+    company: j.company,
+    match_score: j.match_score,
+    description: j.description?.slice(0, 200)
+  }));
 
   // 🔹 STEP 5: Prompt
   const prompt = `
@@ -46,11 +65,17 @@ IMPORTANT:
 - DO NOT modify match_score
 - Use match_score to rank jobs
 
+User Preferences:
+${preferencesText}
+
+Relevant Conversation Context:
+${historyText}
+
 Resume Context:
 ${context}
 
 Jobs:
-${JSON.stringify(topJobs)}
+${JSON.stringify(compactJobs)}
 
 Missing Skills:
 ${missingSkills.join(", ")}
