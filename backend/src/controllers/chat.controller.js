@@ -1,4 +1,6 @@
 import { executeAgent } from "../services/agents.service.js";
+import { classifyIntent } from "../utils/intentClassifier.js";
+import { handleChatFlow } from "../services/chat.service.js";
 import Memory from "../models/memory.model.js";
 
 export const chatStream = async (req, res) => {
@@ -8,10 +10,9 @@ export const chatStream = async (req, res) => {
     res.setHeader("Connection", "keep-alive");
 
     const userId = req.user._id;
-    // user message
     const message = req.body.message;
 
-    // 🔹 Load or create memory
+    // 🔹 Load memory
     let memory = await Memory.findOne({ userId });
 
     if (!memory) {
@@ -22,31 +23,53 @@ export const chatStream = async (req, res) => {
       });
     }
 
-    // 🔹 Short-term memory (last 10 messages)
     const recentMessages = memory.messages.slice(-10);
 
     const sendEvent = (event, data) => {
       res.write(`data: ${JSON.stringify({ event, data })}\n\n`);
     };
 
-    // 🔥 Execute agent with memory
-    const result = await executeAgent(
-      userId,
-      message, // later query
-      sendEvent,
+    // 🔥 INTENT CLASSIFICATION
+    const intent = await classifyIntent(message);
+    console.log("[INTENT]:", intent);
+
+    let result;
+
+    // 🔥 ROUTING
+    if (intent === "JOB") {
+      result = await executeAgent(
+        userId,
+        message,
+        sendEvent,
+        {
+          history: recentMessages,
+          preferences: memory.preferences
+        }
+      );
+    } else {
+      result = await handleChatFlow(
+        userId,
+        message,
+        sendEvent,
+        {
+          history: recentMessages,
+          preferences: memory.preferences
+        }
+      );
+    }
+
+    // 🔹 Save memory
+    memory.messages.push(
+      { role: "user", content: message },
       {
-        history: recentMessages,
-        preferences: memory.preferences
+        role: "assistant",
+        content:
+          result.type === "chat"
+            ? result.answer
+            : JSON.stringify(result) // job flow still structured
       }
     );
 
-    // 🔹 Save conversation
-    memory.messages.push(
-      { role: "user", content: message },
-      { role: "assistant", content: JSON.stringify(result) }
-    );
-
-    // 🔥 Keep memory bounded
     memory.messages = memory.messages.slice(-20);
 
     await memory.save();

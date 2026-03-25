@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 export const geminiCall = async (prompt) => {
   try {

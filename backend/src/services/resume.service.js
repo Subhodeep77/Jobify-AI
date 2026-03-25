@@ -1,6 +1,7 @@
 import { parsePDF } from "../utils/pdfparse.js";
 import { cleanResumeText } from "../utils/textCleaner.js";
 import { chunkResumeText } from "../utils/chunker.js";
+import { generateResumeSummary } from "../utils/generateResumeSummary.js";
 import { getVectorStore } from "../config/vectordb.js";
 
 export const processResume = async (file, userId) => {
@@ -26,7 +27,16 @@ export const processResume = async (file, userId) => {
     const cleanText = cleanResumeText(rawText);
     console.log('clean_text: ', cleanText)
 
-    // 🔹 Step 3: Chunk into documents
+    if (!cleanText || cleanText.trim().length === 0) {
+      throw new Error("Cleaned text is empty");
+    }
+
+    // 🔹 Step 3: Chunk into documents and generate resume summary
+    const resumeSummary = await generateResumeSummary({
+      userId,
+      cleanText,
+    });
+    console.log('resSum: ', resumeSummary)
     const documents = chunkResumeText(cleanText);
     console.log('documents: ', documents)
 
@@ -55,7 +65,7 @@ export const processResume = async (file, userId) => {
         userId: String(userId),
         source: "resume",
         chunkIndex: i
-      }
+      },
     }));
 
     console.log("📤 Uploading to Pinecone...");
