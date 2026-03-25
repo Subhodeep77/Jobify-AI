@@ -29,9 +29,9 @@ export const suggestImprovements = async (resumeContext, jobs) => {
     const jobText = jobs
       .slice(0, 3)
       .map(job => `
-Title: ${job.title}
-Description: ${job.description}
-`)
+        Title: ${job.title}
+        Description: ${job.description}
+      `)
       .join("\n");
 
     const prompt = `

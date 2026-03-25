@@ -21,8 +21,6 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
   // 🔹 STEP 1: Resume Context
   sendEvent?.("agent_step", { tool: "resume", status: "start" });
   const { context, cleanContext } = await getResumeContext(userId, query);
-  console.log('context: ', context)
-  console.log('cleanContext: ', cleanContext)
   sendEvent?.("agent_step", { tool: "resume", status: "end" });
 
   // 🔹 STEP 2: Jobs
@@ -44,8 +42,8 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
   // 🔹 STEP 3: Semantic Matching
   const matchedJobs = await matchJobs(resumeSignal, jobs);
   console.log("🧠 Resume context length:", cleanContext?.length);
-  console.log("💼 Jobs fetched:", jobs.length);
-  console.log("📊 Matched jobs:", matchedJobs.length);
+  console.log("💼 Jobs fetched:", jobs);
+  console.log("📊 Matched jobs:", matchedJobs);
 
   // 🔹 STEP 4: Missing Skills
   const missingSkills = await suggestImprovements(resumeSignal, jobs);

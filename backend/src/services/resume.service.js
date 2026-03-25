@@ -14,6 +14,8 @@ export const processResume = async (file, userId) => {
     // 🔹 Step 1: Extract text
     const rawText = await parsePDF(file.buffer);
 
+    console.log('raw_text: ', rawText)
+
     if (!rawText || rawText.trim().length === 0) {
       throw new Error("PDF parsing returned empty text");
     }
@@ -22,9 +24,11 @@ export const processResume = async (file, userId) => {
 
     // 🔹 Step 2: Clean text
     const cleanText = cleanResumeText(rawText);
+    console.log('clean_text: ', cleanText)
 
     // 🔹 Step 3: Chunk into documents
-    const documents = await chunkResumeText(cleanText);
+    const documents = chunkResumeText(cleanText);
+    console.log('documents: ', documents)
 
     if (!documents.length) {
       throw new Error("No valid chunks extracted from resume");

@@ -22,6 +22,10 @@ export const matchJobs = async (resumeContext, jobs) => {
     if (!jobs.length) return [];
 
     // 🔥 Use only top chunks (reduce noise)
+    // instead of splitting, slicing, etc. what we can do is to store resume summary generated from LLM
+    // store that within a text_file/ mongodb/ in memory, then provide that resume summary and the message
+    // from user to generate roles from LLM, provide these roles within a query to serpapi and then according to that
+    // resume summary and jobs returned from serpapi is matched through matcher.
     const resumeSummary = resumeContext
       .split("\n\n")
       .slice(0, 3)

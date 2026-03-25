@@ -8,6 +8,7 @@ export const chatStream = async (req, res) => {
     res.setHeader("Connection", "keep-alive");
 
     const userId = req.user._id;
+    // user message
     const message = req.body.message;
 
     // 🔹 Load or create memory
@@ -31,7 +32,7 @@ export const chatStream = async (req, res) => {
     // 🔥 Execute agent with memory
     const result = await executeAgent(
       userId,
-      message,
+      message, // later query
       sendEvent,
       {
         history: recentMessages,
