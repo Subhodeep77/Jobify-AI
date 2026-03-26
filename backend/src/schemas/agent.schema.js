@@ -4,6 +4,8 @@ export const JobSchema = z.object({
   role: z.string(),
   company: z.string(),
   match_score: z.number().min(0).max(1),
+  confidence_score: z.number().min(0).max(1),
+  apply_link: z.string().url().nullable().optional(),
   why: z.array(z.string()),
   missing_skills: z.array(z.string()),
   next_steps: z.array(z.string())

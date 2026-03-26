@@ -19,7 +19,6 @@ export const chatStream = async (req, res) => {
       memory = await Memory.create({
         userId,
         messages: [],
-        preferences: {}
       });
     }
 
@@ -43,7 +42,6 @@ export const chatStream = async (req, res) => {
         sendEvent,
         {
           history: recentMessages,
-          preferences: memory.preferences
         }
       );
     } else {
@@ -53,7 +51,6 @@ export const chatStream = async (req, res) => {
         sendEvent,
         {
           history: recentMessages,
-          preferences: memory.preferences
         }
       );
     }

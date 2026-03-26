@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
 export const geminiCall = async (prompt) => {
   try {
@@ -11,7 +11,7 @@ export const geminiCall = async (prompt) => {
       }
     );
 
-    console.log('gemini_api_key: ',process.env.GEMINI_API_KEY)
+    console.log('gemini_api has been hit')
 
     return res.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 

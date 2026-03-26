@@ -66,6 +66,9 @@ ${query}
 
   const response = await geminiCall(prompt);
 
+  console.log('chat response: ', response);
+  
+
   sendEvent?.("agent_step", { tool: "chat", status: "end" });
 
   return {

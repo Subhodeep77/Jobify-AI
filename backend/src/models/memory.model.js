@@ -11,11 +11,6 @@ const memorySchema = new mongoose.Schema({
 
   messages: [messageSchema],
 
-  preferences: {
-    roles: [String],
-    location: String,
-    remote: Boolean
-  }
 });
 
 export default mongoose.model("Memory", memorySchema);

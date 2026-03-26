@@ -81,6 +81,8 @@ Return JSON:
       return basicExtraction(resumeContext, jobs);
     }
 
+    console.log('missing_skills: ', parsed.missing_skills.slice(0, 10));
+    
     return parsed.missing_skills.slice(0, 10);
 
   } catch (error) {

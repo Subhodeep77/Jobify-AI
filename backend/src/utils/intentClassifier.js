@@ -40,6 +40,9 @@ Answer: CHAT
 Query: "Am I suitable for software roles?"
 Answer: JOB
 
+Query: "Roadmap for the next_steps of the above roles"
+Answer: CHAT
+
 Query: "Summarize my projects"
 Answer: CHAT
 

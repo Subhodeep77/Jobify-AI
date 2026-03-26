@@ -12,7 +12,7 @@ export const fetchJobs = async (query) => {
     });
 
     console.log("FULL SERP RESPONSE:", JSON.stringify(res.data, null, 2));
-    
+
 
     const jobs = res.data.jobs_results || [];
 
@@ -22,11 +22,16 @@ export const fetchJobs = async (query) => {
       .map(job => ({
         id: job.job_id || `${job.title}_${job.company_name}`,
         title: job.title,
-        company: job.company_name,
+        company: job.company_name || "N/A",
         location: job.location || "N/A",
-        description: (job.description || "").slice(0, 500),
-        link: job.related_links?.[0]?.link || "",
-        source: "serpapi"
+        description: job.description
+          ? job.description.slice(0, 500)
+          : "No description available",
+        link:
+          job.apply_options?.find(opt => opt.link)?.link ||
+          job.related_links?.find(l => l.link)?.link ||
+          null,
+        source: "serpapi",
       }));
 
     console.log('cleaned Jobs: ', cleanedJobs)

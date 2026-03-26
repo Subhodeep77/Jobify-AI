@@ -1,54 +1,81 @@
 import { geminiCall } from "../config/gemini.js";
-import { getResumeContext } from "./tools/resume.tool.js";
 import { getJobs } from "./tools/job.tool.js";
 import { matchJobs } from "./tools/matcher.tool.js";
 import { suggestImprovements } from "./tools/improvement.tool.js";
 import { ResponseSchema } from "../schemas/agent.schema.js";
+import ResumeSummary from "../models/resumeSummary.model.js";
+import { extractRolesFromResume } from "./tools/role.tool.js";
+import { parseJobQuery } from "./tools/queryParser.tool.js";
+
+const calculateConfidence = (matchScore, missingSkills) => {
+  const penalty = Math.min(missingSkills.length * 0.08, 0.6);
+  return Number((matchScore * (1 - penalty)).toFixed(3));
+};
 
 export const runAgent = async (userId, query, sendEvent, memory = {}) => {
 
   const historyText = (memory.history || [])
     .slice(-6)
-    .filter(m => m.role === "user")
-    .map(m => `${m.content}`)
+    .filter(m => m.role !== "system")
+    .map(m => `${m.role}: ${m.content}`)
     .join("\n");
 
   console.log('historyText: ', historyText)
-  console.log('preferences: ', memory.preferences)
-  const preferencesText = JSON.stringify(memory.preferences || {});
-  console.log('preferncesText: ', preferencesText)
 
   // 🔹 STEP 1: Resume Context
   sendEvent?.("agent_step", { tool: "resume", status: "start" });
-  const { context, cleanContext } = await getResumeContext(userId, query);
+  const resumeContext = await ResumeSummary.findOne({ userId });
   sendEvent?.("agent_step", { tool: "resume", status: "end" });
 
-  // 🔹 STEP 2: Jobs
-  sendEvent?.("agent_step", { tool: "jobs", status: "start" });
-  console.log('query: ', query)
-  const jobs = await getJobs(query);
-  console.log('jobs: ', jobs)
-  sendEvent?.("agent_step", { tool: "jobs", status: "end" });
-
-  if (!jobs.length || !cleanContext) {
+  if (!resumeContext || !resumeContext.summary) {
     return { recommended_roles: [] };
   }
 
+  // 🔹 STEP 2: Jobs
+  sendEvent?.("agent_step", { tool: "jobs", status: "start" });
+  const roles = await extractRolesFromResume(resumeContext, query);
+  const safeRoles = roles.length ? roles : ["Software Engineer"];
+  const new_query = await parseJobQuery(safeRoles, query)
+  console.log("[ROLES]:", safeRoles);
+  console.log("[JOB QUERY]:", new_query);
+  const jobs = await getJobs(new_query);
+  console.log('jobs: ', jobs)
+  if (!jobs.length) {
+    return { recommended_roles: [] };
+  }
+  sendEvent?.("agent_step", { tool: "jobs", status: "end" });
 
-  const resumeSignal = cleanContext.slice(0, 2000);
+
+  const summary = resumeContext?.summary;
+
+  const resumeSignal = `
+Description: ${summary.description}
+
+Skills: ${(summary.skills || []).join(", ")}
+
+Projects: ${summary.projects}
+
+Experience: ${summary.experience}
+
+Education: ${summary.education}
+
+Achievements: ${summary.achievements}
+
+Certifications: ${summary.certifications}
+`.slice(0, 2000);
   console.log('resume signal: ', resumeSignal);
-  
+
 
   // 🔹 STEP 3: Semantic Matching
   const matchedJobs = await matchJobs(resumeSignal, jobs);
-  console.log("🧠 Resume context length:", cleanContext?.length);
+
   console.log("💼 Jobs fetched:", jobs);
   console.log("📊 Matched jobs:", matchedJobs);
 
   // 🔹 STEP 4: Missing Skills
   const missingSkills = await suggestImprovements(resumeSignal, jobs);
   console.log('missingSkills: ', missingSkills);
-  
+
 
   // 🔥 Limit jobs for LLM
   const topJobs = matchedJobs.slice(0, 5);
@@ -60,7 +87,8 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
     title: j.title,
     company: j.company,
     match_score: j.match_score,
-    description: j.description?.slice(0, 200)
+    description: j.description?.slice(0, 200),
+    apply_link: j.link || null
   }));
 
   console.log('Compactjobs: ', compactJobs)
@@ -75,20 +103,20 @@ STRICT RULES:
 - If missing, say "Not found in resume"
 - DO NOT hallucinate
 - Output MUST be valid JSON
+- Use apply_link EXACTLY as provided in Jobs
+- If apply_link is missing, return null
+- DO NOT generate or modify apply_link
 
 IMPORTANT:
 - match_score is already provided
 - DO NOT modify match_score
 - Use match_score to rank jobs
 
-User Preferences:
-${preferencesText}
-
 Relevant Conversation Context:
 ${historyText}
 
-Resume Context:
-${context}
+Resume Summary:
+${resumeSignal}
 
 Jobs:
 ${JSON.stringify(compactJobs)}
@@ -110,6 +138,7 @@ Return JSON ONLY:
       "role": "",
       "company": "",
       "match_score": 0,
+      "apply_link": null,
       "why": [],
       "missing_skills": [],
       "next_steps": []
@@ -120,7 +149,7 @@ Return JSON ONLY:
 
   // 🔹 STEP 6: LLM CALL
   const raw = await geminiCall(prompt);
-  console.log('gemini_res_raw',raw)
+  console.log('gemini_res_raw', raw)
 
   const cleaned = raw
     .replace(/```json|```/g, "")
@@ -141,6 +170,11 @@ Return JSON ONLY:
         role: job.title,
         company: job.company,
         match_score: job.match_score,
+        apply_link: job.link || null,
+        confidence_score: calculateConfidence(
+          job.match_score,
+          []
+        ),
         why: ["Fallback: Invalid JSON"],
         missing_skills: [],
         next_steps: []
@@ -148,7 +182,19 @@ Return JSON ONLY:
     };
   }
 
-  const validated = ResponseSchema.safeParse(parsed);
+  // 🔥 Inject confidence BEFORE validation
+  const enrichedBeforeValidation = {
+    recommended_roles: (parsed.recommended_roles || []).map(job => ({
+      ...job,
+      confidence_score: calculateConfidence(
+        job.match_score,
+        job.missing_skills || []
+      )
+    }))
+  };
+
+  // ✅ NOW validate
+  const validated = ResponseSchema.safeParse(enrichedBeforeValidation);
 
   if (!validated.success) {
     console.error("Schema validation failed:", validated.error);
@@ -160,13 +206,24 @@ Return JSON ONLY:
         role: job.title,
         company: job.company,
         match_score: job.match_score,
+        apply_link: job.link || null,
+        confidence_score: calculateConfidence(
+          job.match_score,
+          []
+        ),
         why: ["Fallback: Schema error"],
         missing_skills: [],
         next_steps: []
       }))
     };
   }
-  console.log('validated_data: ', validated.data);
-  
-  return validated.data;
-};
+
+  // ✅ SORT AFTER VALIDATION
+  const sorted = validated.data.recommended_roles.sort(
+    (a, b) => b.confidence_score - a.confidence_score
+  );
+
+  console.log("sorted:", sorted);
+
+  return { recommended_roles: sorted };
+}
