@@ -1,28 +1,17 @@
-import { useState } from "react";
-import ResumeUpload from "./components/ResumeUpload";
-import CareerGoalForm from "./components/CareerGoalForm";
-import ResultsView from "./components/ResultsView";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+//import ChatPage from "./pages/ChatPage";
 
-export default function App() {
-  const [collectionName, setCollectionName] = useState(null);
-  const [result, setResult] = useState(null);
-
+function App() {
   return (
-    <div style={{ padding: 20 }}>
-      <h1>AI Career Advisor</h1>
-
-      {!collectionName && (
-        <ResumeUpload onUploaded={setCollectionName} />
-      )}
-
-      {collectionName && !result && (
-        <CareerGoalForm
-          collectionName={collectionName}
-          onResult={setResult}
-        />
-      )}
-
-      {result && <ResultsView advice={result} />}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        {/* <Route path="/chat" element={<ChatPage />} /> */}
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
