@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
-import { loginSchema } from "../schemas/login.schema";
+import { registerSchema } from "../schemas/register.schema";
 import { validateWithZod } from "../utils/validateWithZod";
 
 import PasswordInput from "../components/PasswordInput";
-import { useAuth } from "../context/auth";
 import Loader from "../components/Loader";
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: "",
   });
@@ -38,11 +37,10 @@ const LoginPage = () => {
   // 🔹 Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setApiError("");
 
     const { success, errors: validationErrors } = validateWithZod(
-      loginSchema,
+      registerSchema,
       form
     );
 
@@ -54,12 +52,12 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/auth/login", form);
+      await api.post("/auth/register", form);
 
-      login(res.token, res.user);
-      navigate("/");
+      // 🚀 Redirect to login
+      navigate("/login");
     } catch (err) {
-      setApiError(err?.message || "Login failed");
+      setApiError(err?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -72,10 +70,10 @@ const LoginPage = () => {
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            Welcome back
+            Create account
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Login to continue
+            Get started with your account
           </p>
         </div>
 
@@ -88,6 +86,33 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="John Doe"
+              className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10 
+              bg-white dark:bg-gray-900 
+              text-gray-900 dark:text-gray-100 
+              ${
+                errors.name
+                  ? "border-red-400"
+                  : "border-gray-300 dark:border-gray-700"
+              }`}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.name}
+              </p>
+            )}
+          </div>
 
           {/* Email */}
           <div>
@@ -123,6 +148,7 @@ const LoginPage = () => {
             onChange={handleChange}
             error={errors.password}
             required
+            label="Password"
           />
 
           {/* Submit */}
@@ -134,14 +160,25 @@ const LoginPage = () => {
             {loading ? (
               <Loader size={18} className="text-white dark:text-black" />
             ) : (
-              "Login"
+              "Create Account"
             )}
           </button>
         </form>
+
+        {/* Footer */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-black dark:text-white font-medium hover:underline"
+          >
+            Login
+          </Link>
+        </p>
 
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

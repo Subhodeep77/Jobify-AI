@@ -1,25 +1,25 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import api from "../services/api";
 
-import { loginSchema } from "../schemas/login.schema";
+import { resetPasswordSchema } from "../schemas/resetPassword.schema";
 import { validateWithZod } from "../utils/validateWithZod";
 
 import PasswordInput from "../components/PasswordInput";
-import { useAuth } from "../context/auth";
 import Loader from "../components/Loader";
 
-const LoginPage = () => {
+const ResetPasswordPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { token } = useParams(); // 🔑 get token from URL
 
   const [form, setForm] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   // 🔹 Handle Input
@@ -40,13 +40,12 @@ const LoginPage = () => {
     e.preventDefault();
 
     setApiError("");
+    setSuccess("");
 
-    const { success, errors: validationErrors } = validateWithZod(
-      loginSchema,
-      form
-    );
+    const { success: isValid, errors: validationErrors } =
+      validateWithZod(resetPasswordSchema, form);
 
-    if (!success) {
+    if (!isValid) {
       setErrors(validationErrors);
       return;
     }
@@ -54,12 +53,18 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/auth/login", form);
+      await api.post(`/auth/reset-password/${token}`, {
+        password: form.password,
+      });
 
-      login(res.token, res.user);
-      navigate("/");
+      setSuccess("Password reset successful. Redirecting to login...");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+
     } catch (err) {
-      setApiError(err?.message || "Login failed");
+      setApiError(err?.message || "Reset failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -72,12 +77,19 @@ const LoginPage = () => {
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            Welcome back
+            Reset Password
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Login to continue
+            Enter your new password
           </p>
         </div>
+
+        {/* Success */}
+        {success && (
+          <div className="mb-4 text-sm text-green-700 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 px-3 py-2 rounded-lg">
+            {success}
+          </div>
+        )}
 
         {/* API Error */}
         {apiError && (
@@ -89,39 +101,21 @@ const LoginPage = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Email
-            </label>
-            <input
-              type="text"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10 
-              bg-white dark:bg-gray-900 
-              text-gray-900 dark:text-gray-100 
-              ${
-                errors.email
-                  ? "border-red-400"
-                  : "border-gray-300 dark:border-gray-700"
-              }`}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          {/* Password */}
           <PasswordInput
             name="password"
             value={form.password}
             onChange={handleChange}
             error={errors.password}
+            label="New Password"
+            required
+          />
+
+          <PasswordInput
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            label="Confirm Password"
             required
           />
 
@@ -134,14 +128,25 @@ const LoginPage = () => {
             {loading ? (
               <Loader size={18} className="text-white dark:text-black" />
             ) : (
-              "Login"
+              "Reset Password"
             )}
           </button>
         </form>
+
+        {/* Footer */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
+          Back to{" "}
+          <Link
+            to="/login"
+            className="text-black dark:text-white font-medium hover:underline"
+          >
+            Login
+          </Link>
+        </p>
 
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;

@@ -1,38 +1,28 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 
-import { loginSchema } from "../schemas/login.schema";
+import { forgotPasswordSchema } from "../schemas/forgotPassword.schema";
 import { validateWithZod } from "../utils/validateWithZod";
 
-import PasswordInput from "../components/PasswordInput";
-import { useAuth } from "../context/auth";
 import Loader from "../components/Loader";
 
-const LoginPage = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
+const ForgotPasswordPage = () => {
   const [form, setForm] = useState({
     email: "",
-    password: "",
   });
 
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   // 🔹 Handle Input
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ email: e.target.value });
 
-    setErrors((prev) => ({
-      ...prev,
-      [e.target.name]: "",
-    }));
+    setErrors({ email: "" });
+    setApiError("");
   };
 
   // 🔹 Submit
@@ -40,13 +30,12 @@ const LoginPage = () => {
     e.preventDefault();
 
     setApiError("");
+    setSuccess("");
 
-    const { success, errors: validationErrors } = validateWithZod(
-      loginSchema,
-      form
-    );
+    const { success: isValid, errors: validationErrors } =
+      validateWithZod(forgotPasswordSchema, form);
 
-    if (!success) {
+    if (!isValid) {
       setErrors(validationErrors);
       return;
     }
@@ -54,12 +43,16 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/auth/login", form);
+      const res = await api.post("/auth/forgot-password", form);
 
-      login(res.token, res.user);
-      navigate("/");
+      // Backend intentionally returns generic success message
+      setSuccess(
+        res?.message ||
+          "If this email exists, a reset link has been sent"
+      );
+
     } catch (err) {
-      setApiError(err?.message || "Login failed");
+      setApiError(err?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -72,12 +65,19 @@ const LoginPage = () => {
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            Welcome back
+            Forgot Password
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Login to continue
+            Enter your email to receive a reset link
           </p>
         </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 text-sm text-green-700 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 px-3 py-2 rounded-lg">
+            {success}
+          </div>
+        )}
 
         {/* API Error */}
         {apiError && (
@@ -116,15 +116,6 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Password */}
-          <PasswordInput
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-            required
-          />
-
           {/* Submit */}
           <button
             type="submit"
@@ -134,14 +125,25 @@ const LoginPage = () => {
             {loading ? (
               <Loader size={18} className="text-white dark:text-black" />
             ) : (
-              "Login"
+              "Send Reset Link"
             )}
           </button>
         </form>
+
+        {/* Footer */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
+          Remember your password?{" "}
+          <Link
+            to="/login"
+            className="text-black dark:text-white font-medium hover:underline"
+          >
+            Login
+          </Link>
+        </p>
 
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default ForgotPasswordPage;
