@@ -177,6 +177,10 @@ export const useChatStream = () => {
     }
   };
 
+  const addLocalMessage = (message) => {
+    setMessages((prev) => [...prev, message]);
+  };
+
   return {
     messages,
     loading,
@@ -184,5 +188,6 @@ export const useChatStream = () => {
     sendMessage,
     stopStreaming,
     retryLast,
+    addLocalMessage
   };
 };

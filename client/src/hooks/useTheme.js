@@ -5,44 +5,38 @@ const THEME_KEY = "theme";
 export const useTheme = () => {
   const [theme, setTheme] = useState("light");
 
-  // 🔹 Initialize theme
+  // 🔹 Initialize theme (runs once)
   useEffect(() => {
     const storedTheme = localStorage.getItem(THEME_KEY);
 
     if (storedTheme) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(storedTheme);
-      document.documentElement.classList.toggle(
-        "dark",
-        storedTheme === "dark"
-      );
     } else {
-      // system preference
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
 
-      const defaultTheme = prefersDark ? "dark" : "light";
-
-      setTheme(defaultTheme);
-      document.documentElement.classList.toggle(
-        "dark",
-        defaultTheme === "dark"
-      );
+      setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
 
+  // 🔥 Sync theme → DOM + localStorage
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
   // 🔹 Toggle theme
   const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-
-    setTheme(newTheme);
-    localStorage.setItem(THEME_KEY, newTheme);
-
-    document.documentElement.classList.toggle(
-      "dark",
-      newTheme === "dark"
-    );
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return { theme, toggleTheme };

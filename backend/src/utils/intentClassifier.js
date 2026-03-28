@@ -43,6 +43,9 @@ Answer: JOB
 Query: "Roadmap for the next_steps of the above roles"
 Answer: CHAT
 
+Query: "Am i a good fit for google sde III according to my resume"
+Answer: CHAT
+
 Query: "Summarize my projects"
 Answer: CHAT
 

@@ -1,5 +1,5 @@
+@custom-variant dark (&:where(.dark, .dark *));
 @import "tailwindcss";
-/* Enable dark mode via class */
-:root {
-  color-scheme: light dark;
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

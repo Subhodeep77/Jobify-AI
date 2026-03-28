@@ -18,8 +18,9 @@ export const handleChatFlow = async (
       answer: "Resume summary not found. Please upload your resume first."
     };
   }
-
+  
   const summary = summaryDoc.summary;
+  console.log('Resume summary: ', summary);
 
   // 🔹 STEP 2: Format summary (important)
   const summaryText = `
@@ -53,6 +54,15 @@ STRICT RULES:
 - Use ONLY the provided resume summary
 - Do NOT hallucinate
 - If not found, say "Not found in resume"
+- Return the response in clean, properly formatted Markdown.
+
+IMPORTANT:
+- Use headings with line breaks (e.g., ### Heading)
+- Use bullet points with "-" (not "*")
+- Add a blank line before and after headings
+- Add a blank line before lists
+- Do NOT write everything in one paragraph
+- Ensure proper spacing so Markdown renders correctly
 
 Conversation:
 ${historyText}

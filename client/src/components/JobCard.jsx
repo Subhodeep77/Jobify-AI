@@ -60,7 +60,7 @@ const JobCard = ({ job }) => {
         onClick={() => setOpen((prev) => !prev)}
         className="mt-3 text-sm text-blue-500 hover:underline"
       >
-        {open ? "Hide details" : "View details"}
+        {open ? "Hide details" : " View details"}
       </button>
 
       {/* Expanded */}

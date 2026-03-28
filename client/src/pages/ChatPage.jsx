@@ -15,6 +15,7 @@ const ChatPage = () => {
     stopStreaming,
     retryLast,
     error,
+    addLocalMessage
   } = useChatStream();
 
   const { user } = useAuth();
@@ -105,7 +106,7 @@ const ChatPage = () => {
           </div>
         )}
 
-        <ChatInput onSend={sendMessage} loading={loading} />
+        <ChatInput onSend={sendMessage} loading={loading} addLocalMessage={addLocalMessage} />
 
       </div>
 
