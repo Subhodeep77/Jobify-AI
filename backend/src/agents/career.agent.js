@@ -28,7 +28,7 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
   sendEvent?.("agent_step", { tool: "resume", status: "end" });
 
   if (!resumeContext || !resumeContext.summary) {
-    return { recommended_roles: [] };
+    return { type: "jobs", recommended_roles: [] };
   }
 
   // 🔹 STEP 2: Jobs
@@ -41,7 +41,7 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
   const jobs = await getJobs(new_query);
   console.log('jobs: ', jobs)
   if (!jobs.length) {
-    return { recommended_roles: [] };
+    return { type: "jobs", recommended_roles: [] };
   }
   sendEvent?.("agent_step", { tool: "jobs", status: "end" });
 
@@ -166,6 +166,7 @@ Return JSON ONLY:
     const fallback = matchedJobs.slice(0, 3);
 
     return {
+      type: "jobs",
       recommended_roles: fallback.map(job => ({
         role: job.title,
         company: job.company,
@@ -184,6 +185,7 @@ Return JSON ONLY:
 
   // 🔥 Inject confidence BEFORE validation
   const enrichedBeforeValidation = {
+    type: "jobs",
     recommended_roles: (parsed.recommended_roles || []).map(job => ({
       ...job,
       confidence_score: calculateConfidence(
@@ -202,6 +204,7 @@ Return JSON ONLY:
     const fallback = matchedJobs.slice(0, 3);
 
     return {
+      type: "jobs",
       recommended_roles: fallback.map(job => ({
         role: job.title,
         company: job.company,
@@ -225,5 +228,5 @@ Return JSON ONLY:
 
   console.log("sorted:", sorted);
 
-  return { recommended_roles: sorted };
+  return { type: "jobs", recommended_roles: sorted };
 }

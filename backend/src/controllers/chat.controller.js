@@ -55,27 +55,72 @@ export const chatStream = async (req, res) => {
       );
     }
 
-    // 🔹 Save memory
+    // 🔥 SAVE MEMORY (UPDATED STRUCTURE)
     memory.messages.push(
-      { role: "user", content: message },
       {
-        role: "assistant",
-        content:
-          result.type === "chat"
-            ? result.answer
-            : JSON.stringify(result) // job flow still structured
-      }
-    );
+        role: "user",
+        type: "chat",
+        content: message,
+        data: null,
+      },
 
+      // ✅ CHAT
+      result?.type === "chat"
+        ? {
+          role: "assistant",
+          type: "chat",
+          content: result.answer || "No response generated",
+          data: null,
+        }
+
+        // ✅ JOBS
+        : result?.type === "jobs"
+          ? {
+            role: "assistant",
+            type: "jobs",
+            content: null,
+            data: result.recommended_roles || [],
+          }
+
+          // 🔥 FALLBACK (safety net)
+          : {
+            role: "assistant",
+            type: "chat",
+            content: "⚠️ Unexpected response from server. Please try again.",
+            data: null,
+          }
+    );
+    // 🔹 Keep last 20 messages
     memory.messages = memory.messages.slice(-20);
 
     await memory.save();
 
+    // 🔹 Send final event
     sendEvent("done", result);
     res.end();
 
   } catch (error) {
     console.error("Chat stream error:", error);
     res.end();
+  }
+};
+
+export const getChatHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const memory = await Memory.findOne({ userId });
+
+    if (!memory) {
+      return res.json({ messages: [] });
+    }
+
+    return res.json({
+      messages: memory.messages, // last 20
+    });
+
+  } catch (error) {
+    console.error("History error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

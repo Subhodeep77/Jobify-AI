@@ -5,7 +5,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-//import ChatPage from "./pages/ChatPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -23,7 +23,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route path="/chat" element={<ChatPage />} /> */}
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
