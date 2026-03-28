@@ -16,7 +16,7 @@ const PasswordInput = ({
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -29,8 +29,13 @@ const PasswordInput = ({
           onChange={onChange}
           placeholder={placeholder}
           className={clsx(
-            "w-full px-3 py-2 pr-10 border rounded-lg outline-none focus:ring-2 focus:ring-black/10",
-            error ? "border-red-400" : "border-gray-300"
+            "w-full px-3 py-2 pr-10 border rounded-lg outline-none transition",
+            "focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10",
+            "bg-white dark:bg-gray-900",
+            "text-gray-900 dark:text-gray-100",
+            error
+              ? "border-red-400"
+              : "border-gray-300 dark:border-gray-700"
           )}
         />
 
@@ -39,7 +44,9 @@ const PasswordInput = ({
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
           aria-label="Toggle password visibility"
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          className="absolute right-2 top-1/2 -translate-y-1/2 
+                     text-gray-500 dark:text-gray-400 
+                     hover:text-gray-700 dark:hover:text-gray-200 transition"
         >
           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
