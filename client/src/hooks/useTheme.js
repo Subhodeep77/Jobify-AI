@@ -2,26 +2,24 @@ import { useEffect, useState } from "react";
 
 const THEME_KEY = "theme";
 
+// 🔥 Get initial theme BEFORE render
+const getInitialTheme = () => {
+  if (typeof window === "undefined") return "light";
+
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored) return stored;
+
+  const prefersDark = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+
+  return prefersDark ? "dark" : "light";
+};
+
 export const useTheme = () => {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(getInitialTheme);
 
-  // 🔹 Initialize theme (runs once)
-  useEffect(() => {
-    const storedTheme = localStorage.getItem(THEME_KEY);
-
-    if (storedTheme) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(storedTheme);
-    } else {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-
-      setTheme(prefersDark ? "dark" : "light");
-    }
-  }, []);
-
-  // 🔥 Sync theme → DOM + localStorage
+  // 🔥 Apply theme immediately
   useEffect(() => {
     const root = document.documentElement;
 
@@ -34,7 +32,6 @@ export const useTheme = () => {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  // 🔹 Toggle theme
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
