@@ -1,5 +1,5 @@
 import JobCard from "../components/JobCard";
-import MessageBubble from "../components/MessageBubble";
+import MessageGroup from "../components/MessageGroup";
 
 /**
  * 🔥 Normalize AI output
@@ -31,24 +31,57 @@ const normalizeMessage = (msg) => {
           data: parsed.recommended_roles,
         };
       }
-    } catch { /* empty */ }
+    } catch {}
   }
 
   return msg;
 };
 
-const MessageList = ({ messages }) => {
-  return (
-    <div className="flex flex-col gap-4">
-      {messages.map((rawMsg, i) => {
-        const msg = normalizeMessage(rawMsg);
-        const key = msg.id || `${msg.role}-${i}`;
+/**
+ * 🔥 GROUPING FUNCTION
+ */
+const groupMessages = (messages) => {
+  const groups = [];
 
+  messages.forEach((rawMsg) => {
+    const msg = normalizeMessage(rawMsg);
+
+    // 🔹 Jobs handled separately
+    if (msg.type === "jobs") {
+      groups.push({ type: "jobs", data: msg.data });
+      return;
+    }
+
+    const lastGroup = groups[groups.length - 1];
+
+    if (
+      lastGroup &&
+      lastGroup.role === msg.role &&
+      msg.role !== "system"
+    ) {
+      lastGroup.messages.push(msg);
+    } else {
+      groups.push({
+        role: msg.role,
+        messages: [msg],
+      });
+    }
+  });
+
+  return groups;
+};
+
+const MessageList = ({ messages }) => {
+  const grouped = groupMessages(messages);
+
+  return (
+    <div className="flex flex-col gap-6">
+      {grouped.map((group, i) => {
         // 🔹 JOBS
-        if (msg.type === "jobs") {
+        if (group.type === "jobs") {
           return (
-            <div key={key} className="grid gap-4">
-              {(msg.data || []).map((job, idx) => (
+            <div key={i} className="grid gap-4">
+              {(group.data || []).map((job, idx) => (
                 <JobCard key={idx} job={job} />
               ))}
             </div>
@@ -56,22 +89,22 @@ const MessageList = ({ messages }) => {
         }
 
         // 🔹 SYSTEM
-        if (msg.role === "system") {
+        if (group.role === "system") {
           return (
             <div
-              key={key}
+              key={i}
               className="text-xs text-gray-500 text-center"
             >
-              {msg.content}
+              {group.messages[0]?.content}
             </div>
           );
         }
 
         return (
-          <MessageBubble
-            key={key}
-            msg={msg}
-            isUser={msg.role === "user"}
+          <MessageGroup
+            key={i}
+            role={group.role}
+            messages={group.messages}
             formatMarkdown={formatMarkdown}
           />
         );

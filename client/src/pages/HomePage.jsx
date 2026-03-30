@@ -6,7 +6,7 @@ import Testimonial from '../components/Testimonial'
 import CallToAction from '../components/CallToAction'
 import Footer from '../components/Footer'
 
-const Home = () => {
+const HomePage = () => {
   return (
     <div>
       <Banner/>
@@ -19,4 +19,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default HomePage;
