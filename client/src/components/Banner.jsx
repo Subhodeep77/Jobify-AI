@@ -1,5 +1,5 @@
 import React from "react";
-
+import ThemeToggle from "./ThemeToggle";
 const Banner = () => {
   return (
     <div
@@ -24,6 +24,7 @@ const Banner = () => {
         </span>
         AI Feature Added
       </p>
+      <ThemeToggle />
     </div>
   );
 };

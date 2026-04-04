@@ -4,7 +4,7 @@ import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MessageList";
 
 import { useAuth } from "../context/auth";
-import ThemeToggle from "../components/ThemeToggle";
+//import ThemeToggle from "../components/ThemeToggle";
 import { Link } from "react-router-dom";
 
 const ChatPage = () => {
@@ -33,13 +33,13 @@ const ChatPage = () => {
 
       {/* 🔹 Header (Sticky) */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 backdrop-blur">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mx-auto">
           AI Assistant
         </h1>
 
         <div className="flex items-center gap-4">
 
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
           <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
             <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold text-gray-800 dark:text-gray-200">
