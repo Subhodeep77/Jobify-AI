@@ -1,10 +1,10 @@
 import { useRef, useEffect } from "react";
+import { Home } from "lucide-react";
 import { useChatStream } from "../hooks/useChatStream";
 import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MessageList";
 
 import { useAuth } from "../context/auth";
-//import ThemeToggle from "../components/ThemeToggle";
 import { Link } from "react-router-dom";
 
 const ChatPage = () => {
@@ -21,7 +21,6 @@ const ChatPage = () => {
   const { user } = useAuth();
   const bottomRef = useRef(null);
 
-  // 🔹 Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -31,16 +30,32 @@ const ChatPage = () => {
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
 
-      {/* 🔹 Header (Sticky) */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 backdrop-blur">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mx-auto">
-          AI Assistant
-        </h1>
 
-        <div className="flex items-center gap-4">
+        <div className="w-30 flex justify-start">
+          <Link
+            to="/"
+            className="
+              p-2 rounded-full
+              bg-indigo-600 text-white
+              hover:bg-indigo-700
+              dark:bg-indigo-500 dark:hover:bg-indigo-600
+              transition
+              flex items-center justify-center
+            "
+            title="Go Home"
+          >
+            <Home size={18} />
+          </Link>
+        </div>
 
-          {/* <ThemeToggle /> */}
+        <div className="flex-1 flex justify-center">
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            AI Assistant
+          </h1>
+        </div>
 
+        <div className="w-30 flex justify-end">
           <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
             <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold text-gray-800 dark:text-gray-200">
               {getInitials(user?.name)}
@@ -50,15 +65,14 @@ const ChatPage = () => {
               {user?.name}
             </span>
           </Link>
-
         </div>
+
       </div>
 
-      {/* 🔹 Messages */}
+      
       <div className="flex-1 overflow-y-auto px-4 py-6">
 
         {!hasMessages ? (
-          // 🔥 Empty State
           <div className="h-full flex items-center justify-center text-center">
             <div>
               <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300">
@@ -78,7 +92,6 @@ const ChatPage = () => {
 
       </div>
 
-      {/* 🔹 Error + Retry */}
       {error && (
         <div className="px-4 py-2 text-sm text-red-500 flex justify-between items-center border-t border-gray-200 dark:border-gray-700">
           <span>{error}</span>
@@ -91,10 +104,8 @@ const ChatPage = () => {
         </div>
       )}
 
-      {/* 🔹 Controls */}
       <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-2 bg-white dark:bg-gray-900">
 
-        {/* Stop button */}
         {loading && (
           <div className="flex justify-end">
             <button
@@ -106,7 +117,11 @@ const ChatPage = () => {
           </div>
         )}
 
-        <ChatInput onSend={sendMessage} loading={loading} addLocalMessage={addLocalMessage} />
+        <ChatInput
+          onSend={sendMessage}
+          loading={loading}
+          addLocalMessage={addLocalMessage}
+        />
 
       </div>
 
@@ -114,7 +129,7 @@ const ChatPage = () => {
   );
 };
 
-// 🔹 Helper
+
 const getInitials = (name = "") => {
   const parts = name.trim().split(" ").filter(Boolean);
   if (!parts.length) return "?";

@@ -3,3 +3,6 @@
 * {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+.reset-tw, .reset-tw * {
+  all: revert !important;
+}
