@@ -1,11 +1,11 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/auth"; // ✅ Context instead of Redux
+import { useAuth } from "../context/auth";
 import Loader from "./Loader";
-
 
 const companiesLogo = [
   {
+    id: 1,
+    label: "Frame",
     logo: (
       <svg
         className="h-7 w-auto max-w-xs"
@@ -27,6 +27,8 @@ const companiesLogo = [
     ),
   },
   {
+    id: 2,
+    label: "Framer",
     logo: (
       <svg
         className="h-7 w-auto max-w-xs"
@@ -48,6 +50,8 @@ const companiesLogo = [
     ),
   },
   {
+    id: 3,
+    label: "Webflow",
     logo: (
       <svg
         className="h-7 w-auto max-w-xs"
@@ -65,6 +69,8 @@ const companiesLogo = [
     ),
   },
   {
+    id: 4,
+    label: "Microsoft",
     logo: (
       <svg
         className="h-7 w-auto max-w-xs"
@@ -86,6 +92,8 @@ const companiesLogo = [
     ),
   },
   {
+    id: 5,
+    label: "Waaame",
     logo: (
       <svg
         className="h-7 w-auto max-w-xs"
@@ -108,72 +116,121 @@ const companiesLogo = [
   },
 ];
 
+const ArrowIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+);
+
 function Hero() {
   const { user, isAuthenticated, loading } = useAuth();
 
-  // 🔹 Prevent flicker during auth initialization
   if (loading) {
     return (
-      <div className="py-20">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
         <Loader text="Checking authentication..." />
       </div>
     );
   }
 
   return (
-    <section className="bg-white py-20 px-6 lg:px-20">
-      <div className="max-w-7xl mx-auto text-center">
-        {/* 🔹 Heading */}
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-          Find Your <span className="text-blue-600">Dream Job</span> Faster 🚀
+    <section className="relative min-h-screen overflow-hidden bg-stone-50 dark:bg-gray-950 transition-colors duration-300">
+
+      {/* ── Ambient gradient orbs ── */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-24 h-120 w-120 rounded-full bg-blue-500/10 blur-[100px] dark:bg-blue-600/15" />
+        <div className="absolute bottom-10 -right-20 h-90 w-90 rounded-full bg-indigo-500/8 blur-[90px] dark:bg-indigo-500/12" />
+      </div>
+
+      {/* ── Content ── */}
+      <div className="relative z-10 mx-auto max-w-3xl px-6 pt-28 pb-20 text-center lg:px-8">
+
+        {/* Live badge */}
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-stone-500 backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#22c55e]" />
+          AI-Powered Job Matching — Now Live
+        </div>
+
+        {/* Heading */}
+        <h1 className="mb-6 font-sans text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 dark:text-gray-50 md:text-5xl lg:text-[3.6rem]">
+          Find Your{" "}
+          <span className="bg-linear-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400">
+            Dream Job
+          </span>{" "}
+          Faster
         </h1>
 
-        {/* 🔹 Subtext */}
-        <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
-          AI-powered job search tailored to your resume. Get matched instantly
-          with top companies.
+        {/* Subtext */}
+        <p className="mx-auto mb-10 max-w-lg text-base leading-relaxed text-gray-500 dark:text-gray-400 md:text-lg">
+          AI-powered job search tailored to your resume. Get matched instantly with top companies hiring right now.
         </p>
 
-        {/* 🔹 CTA */}
-        <div className="mt-8 flex justify-center gap-4">
+        {/* CTA buttons */}
+        <div className="mb-12 flex flex-wrap items-center justify-center gap-3">
           {isAuthenticated ? (
             <Link
               to="/profile"
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-blue-600/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400"
             >
-              Go to Profile Section
+              Go to Profile
+              <ArrowIcon />
             </Link>
           ) : (
             <>
               <Link
                 to="/login"
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-blue-600/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400"
               >
                 Get Started
+                <ArrowIcon />
               </Link>
               <Link
                 to="/register"
-                className="border border-gray-300 px-6 py-3 rounded-xl hover:bg-gray-100 transition"
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white/70 px-6 py-3 text-sm font-semibold text-gray-700 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900/70 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-800/80"
               >
-                Sign Up
+                Sign Up Free
               </Link>
             </>
           )}
         </div>
 
-        {/* 🔹 Welcome message */}
+        {/* Welcome pill */}
         {user && (
-          <p className="mt-6 text-gray-700">
-            Welcome back, <span className="font-semibold">{user.name}</span> 👋
-          </p>
+          <div className="mb-10 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-4 py-2 text-sm text-gray-600 backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300">
+            <span>👋 Welcome back,</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{user.name}</span>
+          </div>
         )}
 
-        {/* 🔹 Logos Section (unchanged) */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-5 gap-6 items-center opacity-70">
-          {companiesLogo.map((company, index) => (
-            <div key={index}>{company.logo}</div>
-          ))}
+        {/* Divider */}
+        <div className="mb-8 flex items-center gap-4">
+          <span className="h-px flex-1 bg-stone-200 dark:bg-gray-800" />
+          <span className="text-[11px] font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
+            Trusted by leading brands
+          </span>
+          <span className="h-px flex-1 bg-stone-200 dark:bg-gray-800" />
         </div>
+
+        {/* Logos grid */}
+        <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white/60 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/60">
+          <div className="grid grid-cols-2 divide-x divide-y divide-stone-200 sm:grid-cols-5 sm:divide-y-0 dark:divide-gray-800">
+            {companiesLogo.map((company, index) => (
+              <div
+                key={company.id}
+                aria-label={company.label}
+                className={[
+                  "flex items-center justify-center px-5 py-6 text-gray-400 opacity-50 transition-all duration-200",
+                  "hover:opacity-100 hover:bg-stone-50 dark:hover:bg-gray-800/60",
+                  // Remove right border on last of each row for cleanliness
+                  index === companiesLogo.length - 1 ? "col-span-2 border-t border-stone-200 dark:border-gray-800 sm:col-span-1 sm:border-t-0" : "",
+                ].join(" ")}
+              >
+                {company.logo}
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </section>
   );

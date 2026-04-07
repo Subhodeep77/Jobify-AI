@@ -8,7 +8,7 @@ import Footer from '../components/Footer'
 
 const HomePage = () => {
   return (
-    <div>
+    <div className='bg-stone-50 dark:bg-gray-950 transition-colors duration-300'>
       <Banner/>
       <Hero/>
       <Features/>

@@ -6,8 +6,8 @@ const Features = () => {
   return (
     <div
       id="features"
-      className="flex flex-col items-center my-10 scroll-mt-12
-      text-slate-800 dark:text-gray-200"
+      className="flex flex-col items-center bg-stone-50 dark:bg-gray-950 transition-colors duration-300 my-10 scroll-mt-12
+      text-slate-800"
     >
       {/* 🔹 Badge */}
       <div
