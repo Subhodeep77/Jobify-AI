@@ -33,7 +33,7 @@
 
 ## 🧠 Overview
 
-**Jobify-AI** is a production-grade AI SaaS platform that combines:
+**Jobify-AI** is a AI-powered Job Search & Resume Intelligence Platform that combines:
 
 - 💼 Intelligent job discovery  
 - 📄 Resume optimization  
