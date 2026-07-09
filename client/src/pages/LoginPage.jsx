@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
 import { loginSchema } from "../schemas/login.schema";
@@ -43,7 +43,7 @@ const LoginPage = () => {
 
     const { success, errors: validationErrors } = validateWithZod(
       loginSchema,
-      form
+      form,
     );
 
     if (!success) {
@@ -68,7 +68,6 @@ const LoginPage = () => {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
-
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -88,7 +87,6 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
-
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -110,9 +108,7 @@ const LoginPage = () => {
               }`}
             />
             {errors.email && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.email}
-              </p>
+              <p className="text-xs text-red-500 mt-1">{errors.email}</p>
             )}
           </div>
 
@@ -124,6 +120,16 @@ const LoginPage = () => {
             error={errors.password}
             required
           />
+
+          {/* Forgot Password */}
+          <div className="flex justify-end -mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition"
+            >
+              Forgot Password?
+            </Link>
+          </div>
 
           {/* Submit */}
           <button
@@ -138,7 +144,16 @@ const LoginPage = () => {
             )}
           </button>
         </form>
-
+        {/* Footer */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-black dark:text-white font-medium hover:underline"
+          >
+            Create Account
+          </Link>
+        </p>
       </div>
     </div>
   );
