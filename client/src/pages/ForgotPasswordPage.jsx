@@ -17,7 +17,7 @@ const ForgotPasswordPage = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Handle Input
+  
   const handleChange = (e) => {
     setForm({ email: e.target.value });
 
@@ -25,7 +25,7 @@ const ForgotPasswordPage = () => {
     setApiError("");
   };
 
-  // 🔹 Submit
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -45,7 +45,7 @@ const ForgotPasswordPage = () => {
 
       const res = await api.post("/auth/forgot-password", form);
 
-      // Backend intentionally returns generic success message
+      
       setSuccess(
         res?.message ||
           "If this email exists, a reset link has been sent"

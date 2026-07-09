@@ -12,7 +12,7 @@ export const chatStream = async (req, res) => {
     const userId = req.user._id;
     const message = req.body.message;
 
-    // 🔹 Load memory
+    
     let memory = await Memory.findOne({ userId });
 
     if (!memory) {
@@ -28,13 +28,13 @@ export const chatStream = async (req, res) => {
       res.write(`data: ${JSON.stringify({ event, data })}\n\n`);
     };
 
-    // 🔥 INTENT CLASSIFICATION
+    
     const intent = await classifyIntent(message);
     console.log("[INTENT]:", intent);
 
     let result;
 
-    // 🔥 ROUTING
+    
     if (intent === "JOB") {
       result = await executeAgent(
         userId,
@@ -55,7 +55,7 @@ export const chatStream = async (req, res) => {
       );
     }
 
-    // 🔥 SAVE MEMORY (UPDATED STRUCTURE)
+    
     memory.messages.push(
       {
         role: "user",
@@ -64,7 +64,7 @@ export const chatStream = async (req, res) => {
         data: null,
       },
 
-      // ✅ CHAT
+      
       result?.type === "chat"
         ? {
           role: "assistant",
@@ -73,7 +73,7 @@ export const chatStream = async (req, res) => {
           data: null,
         }
 
-        // ✅ JOBS
+        
         : result?.type === "jobs"
           ? {
             role: "assistant",
@@ -82,7 +82,7 @@ export const chatStream = async (req, res) => {
             data: result.recommended_roles || [],
           }
 
-          // 🔥 FALLBACK (safety net)
+          
           : {
             role: "assistant",
             type: "chat",
@@ -90,12 +90,12 @@ export const chatStream = async (req, res) => {
             data: null,
           }
     );
-    // 🔹 Keep last 20 messages
+    
     memory.messages = memory.messages.slice(-20);
 
     await memory.save();
 
-    // 🔹 Send final event
+    
     sendEvent("done", result);
     res.end();
 
@@ -116,7 +116,7 @@ export const getChatHistory = async (req, res) => {
     }
 
     return res.json({
-      messages: memory.messages, // last 20
+      messages: memory.messages, 
     });
 
   } catch (error) {

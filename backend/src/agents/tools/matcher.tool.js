@@ -47,7 +47,7 @@ export const matchJobs = async (resumeContext, jobs) => {
 
       const similarity = cosineSimilarity(resumeEmbedding, jobEmbedding);
 
-      // 🔥 normalize to 0–1
+      
       const normalized = (similarity + 1) / 2;
 
       return {

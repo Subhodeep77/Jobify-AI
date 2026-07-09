@@ -58,23 +58,22 @@ export const classifyIntent = async (query) => {
   try {
     const lower = query.toLowerCase();
 
-    // ⚡ Step 1: Strong CHAT shortcut (safe skip)
     const isStrongChat = strongChatHints.some(word =>
       lower.includes(word)
     );
 
     if (isStrongChat && !lower.includes("job")) {
       
-      return "CHAT"; // ✅ safe optimization
+      return "CHAT"; 
     }
 
-    // 🧠 Step 2: Let LLM decide (for ALL ambiguous cases)
+    
     const prompt = buildPrompt(query);
     const res = await geminiCall(prompt);
 
     const intent = res?.trim().toUpperCase();
     
-    // 🛡️ Step 3: Safe fallback
+    
     if (intent === "JOB") return "JOB";
     if (intent === "CHAT") return "CHAT";
     

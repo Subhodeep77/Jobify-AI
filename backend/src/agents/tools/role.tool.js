@@ -1,6 +1,6 @@
 import { geminiCall } from "../../config/gemini.js";
 
-// 🔒 Safe JSON extractor
+
 const extractJSON = (text) => {
   try {
     const match = text.match(/\{[\s\S]*\}/);
@@ -11,10 +11,9 @@ const extractJSON = (text) => {
   }
 };
 
-// 🔥 MAIN FUNCTION
+
 export const extractRolesFromResume = async (resumeSum, userMessage) => {
   try {
-    // 🔹 Fetch stored resume summary
 
     if (!resumeSum || !resumeSum.summary) {
       console.warn("[ROLE] No summary found");
@@ -39,7 +38,7 @@ Achievements: ${summary.achievements}
 Certifications: ${summary.certifications}
 `;
 
-    // 🔥 LLM Prompt
+    
     const prompt = `
 You are an AI job role extractor.
 

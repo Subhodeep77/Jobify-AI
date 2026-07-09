@@ -1,6 +1,5 @@
 import { geminiCall } from "../../config/gemini.js";
 
-// 🔹 Fallback (rule-based)
 const basicExtraction = (resumeContext, jobs) => {
   const missing = [];
 
@@ -20,12 +19,10 @@ const basicExtraction = (resumeContext, jobs) => {
   return [...new Set(missing)].slice(0, 10);
 };
 
-// 🔥 MAIN FUNCTION (LLM + fallback)
 export const suggestImprovements = async (resumeContext, jobs) => {
   try {
     if (!jobs.length) return [];
 
-    // 🔥 Limit jobs for cost + clarity
     const jobText = jobs
       .slice(0, 3)
       .map(job => `
@@ -88,7 +85,6 @@ Return JSON:
   } catch (error) {
     console.error("Improvement tool error:", error);
 
-    // 🔥 fallback ALWAYS available
     return basicExtraction(resumeContext, jobs);
   }
 };

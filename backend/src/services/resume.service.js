@@ -12,7 +12,7 @@ export const processResume = async (file, userId) => {
 
     console.log("🔹 Starting resume processing...");
 
-    // 🔹 Step 1: Extract text
+    
     const rawText = await parsePDF(file.buffer);
 
     console.log('raw_text: ', rawText)
@@ -23,7 +23,7 @@ export const processResume = async (file, userId) => {
 
     console.log("✅ PDF parsed");
 
-    // 🔹 Step 2: Clean text
+    
     const cleanText = cleanResumeText(rawText);
     console.log('clean_text: ', cleanText)
 
@@ -31,7 +31,7 @@ export const processResume = async (file, userId) => {
       throw new Error("Cleaned text is empty");
     }
 
-    // 🔹 Step 3: Chunk into documents and generate resume summary
+    
     const resumeSummary = await generateResumeSummary({
       userId,
       cleanText,
@@ -46,10 +46,10 @@ export const processResume = async (file, userId) => {
 
     console.log(`✅ Chunked into ${documents.length} documents`);
 
-    // 🔹 Step 4: Get vector store
+    
     const store = await getVectorStore(userId);
 
-    // 🔥 Step 5: Safe delete (avoid 404 crash)
+    
     try {
       await store.delete({ deleteAll: true });
       console.log("🗑️ Previous vectors deleted");
@@ -57,7 +57,7 @@ export const processResume = async (file, userId) => {
       console.warn("⚠️ No previous vectors to delete (safe)");
     }
 
-    // 🔹 Step 6: Attach metadata (DO NOT add id manually)
+    
     const docs = documents.map((doc, i) => ({
       pageContent: doc.pageContent,
       metadata: {
@@ -70,12 +70,12 @@ export const processResume = async (file, userId) => {
 
     console.log("📤 Uploading to Pinecone...");
 
-    // 🔥 Step 7: Store embeddings
+    
     await store.addDocuments(docs);
 
     console.log(`✅ Stored ${docs.length} chunks for user ${userId}`);
 
-    // 🔹 Step 8: Preview
+    
     const preview = docs.map((doc) => ({
       section: doc.metadata?.section || "general",
       content: doc.pageContent

@@ -6,18 +6,14 @@ if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX) {
   throw new Error("Missing Pinecone environment variables");
 }
 
-// 🔹 Init Pinecone client
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY
 });
 
-// 🔹 Get index
 const index = pinecone.Index(process.env.PINECONE_INDEX);
 
-// 🔹 Embeddings
 const embeddings = new GeminiEmbeddings();
 
-// 🔥 FIXED: use constructor, NOT fromExistingIndex
 export const getVectorStore = async (userId) => {
   const namespace = `user_${String(userId)}`;
 

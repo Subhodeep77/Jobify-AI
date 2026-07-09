@@ -18,7 +18,7 @@ export const retrieveContext = async (userId, query) => {
       };
     }
 
-    // 🔹 Format results
+    
     let formatted = results.map(([doc, score]) => ({
       content: doc.pageContent,
       score,
@@ -28,11 +28,11 @@ export const retrieveContext = async (userId, query) => {
     console.log('formatted: ', formatted);
     
 
-    // 🔥 Filter low-quality matches
+    
     formatted = formatted.filter(item => item.score >= 0.7);
     console.log('formatted: ', formatted);
 
-    // ⚠️ fallback if empty
+    
     if (!formatted.length) {
       formatted = results.map(([doc, score]) => ({
         content: doc.pageContent,
@@ -41,7 +41,7 @@ export const retrieveContext = async (userId, query) => {
       }));
     }
 
-    // ✅ Clean context (for embeddings / matcher)
+    
     const cleanContext = formatted
       .map(item => item.content)
       .join("\n\n");
@@ -49,7 +49,7 @@ export const retrieveContext = async (userId, query) => {
     console.log('clean_context: ', cleanContext);
     
 
-    // ✅ Rich context (for LLM)
+    
     const context = formatted
       .map((item, i) =>
         `[${i + 1}] (${item.section}, score: ${item.score.toFixed(2)}) ${item.content}`

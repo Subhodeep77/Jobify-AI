@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
 
-// 🔹 Generate JWT
 const generateToken = (userId, email) => {
   return jwt.sign(
     { userId, email },
@@ -12,7 +11,6 @@ const generateToken = (userId, email) => {
   );
 };
 
-// 🔹 REGISTER
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -29,20 +27,25 @@ export const registerUser = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
+    console.log("Request body:", req.body);
+
     const userExists = await User.findOne({ email: normalizedEmail });
 
     if (userExists) {
       return res.status(409).json({ message: "User already exists" });
     }
 
-    // 🔥 Password hashing handled in model
     const newUser = await User.create({
       name,
       email: normalizedEmail,
       password
     });
 
+    console.log("User created");
+
     const token = generateToken(newUser._id, newUser.email);
+
+    console.log("JWT generated");
 
     newUser.password = undefined;
 
@@ -58,7 +61,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// 🔹 LOGIN
+
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -97,7 +100,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// 🔹 FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -106,9 +108,8 @@ export const forgotPassword = async (req, res) => {
 
     const user = await User.findOne({ email: normalizedEmail });
 
-    // 🔥 Prevent email enumeration
     if (!user) {
-      return res.json({
+      return res.status(404).json({
         message: "If this email exists, a reset link has been sent"
       });
     }
@@ -146,7 +147,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// 🔹 RESET PASSWORD
 export const resetPassword = async (req, res) => {
   try {
     const rawToken = req.params.token;
@@ -175,7 +175,6 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // 🔥 Hashed by model hook
     user.password = password;
 
     user.resetPasswordToken = undefined;

@@ -11,7 +11,7 @@ const resumeSummarySchema = new mongoose.Schema(
     summary: {
       description: {
         type: String,
-        default: "", // 🔥 high-level profile of candidate
+        default: "", 
       },
 
       skills: {
@@ -56,7 +56,7 @@ const resumeSummarySchema = new mongoose.Schema(
   }
 );
 
-// 🔒 One summary per user (overwrite on new upload)
+
 resumeSummarySchema.index({ userId: 1 }, { unique: true });
 
 const ResumeSummary = mongoose.model("ResumeSummary", resumeSummarySchema);

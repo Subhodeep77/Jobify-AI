@@ -52,6 +52,8 @@ const RegisterPage = () => {
     try {
       setLoading(true);
 
+      console.log("Submitting:", form);
+
       await api.post("/auth/register", form);
 
       // 🚀 Redirect to login

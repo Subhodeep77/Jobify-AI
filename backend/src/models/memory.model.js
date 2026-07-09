@@ -7,20 +7,20 @@ const messageSchema = new mongoose.Schema({
     required: true,
   },
 
-  // 🔹 Message type (UI-friendly)
+  
   type: {
     type: String,
     enum: ["chat", "jobs"],
     default: "chat",
   },
 
-  // 🔹 For chat messages
+  
   content: {
     type: String,
     default: null,
   },
 
-  // 🔹 For structured responses (jobs)
+  
   data: {
     type: mongoose.Schema.Types.Mixed,
     default: null,

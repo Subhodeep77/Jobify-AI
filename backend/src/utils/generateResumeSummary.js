@@ -2,7 +2,7 @@ import crypto from "crypto";
 import ResumeSummary from "../models/resumeSummary.model.js";
 import { geminiCall } from "../config/gemini.js";
 
-// 🔒 Normalize + validate schema
+
 const normalizeSummary = (data) => {
   return {
     description: data?.description || "",
@@ -15,12 +15,12 @@ const normalizeSummary = (data) => {
   };
 };
 
-// 🔒 Hash generator (for deduplication)
+
 const generateHash = (text) => {
   return crypto.createHash("sha256").update(text).digest("hex");
 };
 
-// 🔒 Safe JSON extractor (strict)
+
 const extractJSON = (text) => {
   try {
     const match = text.match(/\{[\s\S]*\}/);
@@ -31,7 +31,7 @@ const extractJSON = (text) => {
   }
 };
 
-// 🔥 MAIN FUNCTION
+
 export const generateResumeSummary = async ({ userId, cleanText }) => {
   try {
     if (!cleanText || !cleanText.trim()) {
@@ -40,7 +40,7 @@ export const generateResumeSummary = async ({ userId, cleanText }) => {
 
     const rawTextHash = generateHash(cleanText);
 
-    // 🔍 Check existing summary
+    
     const existing = await ResumeSummary.findOne({ userId });
 
     if (existing && existing.rawTextHash === rawTextHash) {
@@ -49,14 +49,12 @@ export const generateResumeSummary = async ({ userId, cleanText }) => {
     }
     
 
-    // ✂️ Trim to safe limit
     const MAX_CHARS = 12000;
     const trimmedText =
       cleanText.length > MAX_CHARS
         ? cleanText.slice(0, MAX_CHARS)
         : cleanText;
 
-    // 🧠 Prompt (STRICT JSON ONLY)
     const prompt = `
 You are an expert resume analyzer.
 
@@ -86,7 +84,6 @@ ${trimmedText}
 
     const response = await geminiCall(prompt);
 
-    //console.log('summary: ', response);
 
     if (!response) {
       throw new Error("Gemini returned empty response");
@@ -94,7 +91,6 @@ ${trimmedText}
 
     let parsed = extractJSON(response);
 
-    // ⚠️ Hard fallback
     if (!parsed) {
       console.warn("[SUMMARY] JSON parsing failed, fallback applied");
 
@@ -107,11 +103,9 @@ ${trimmedText}
       };
     }
 
-    //console.log('summaryP: ', parsed);
-
     const normalized = normalizeSummary(parsed);
 
-    // 💾 Upsert summary
+    
     const saved = await ResumeSummary.findOneAndUpdate(
       { userId },
       {

@@ -9,7 +9,7 @@ const SECTION_HEADERS = [
   "profiles"
 ];
 
-// detect section header
+
 const isSection = (line) => {
   const lower = line.toLowerCase().trim();
   return SECTION_HEADERS.includes(lower);
@@ -21,7 +21,7 @@ export function chunkResumeText(cleanText) {
   const sections = {};
   let currentSection = "general";
 
-  // 🔹 Step 1: Build structured sections
+  
   for (let line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -41,12 +41,10 @@ export function chunkResumeText(cleanText) {
 
   const documents = [];
 
-  // 🔥 Step 2: Smart section handling
+  
   for (const [section, content] of Object.entries(sections)) {
 
-    // =========================
-    // 🚀 PROJECT GROUPING (FIXED)
-    // =========================
+    
     if (section === "projects") {
       let currentProject = [];
 
@@ -63,12 +61,12 @@ export function chunkResumeText(cleanText) {
           line.toLowerCase().includes("github") ||
           line.toLowerCase().includes("project") ||
           line.includes("|") ||
-          line.length < 120 // short titles
+          line.length < 120 
         );
 
       for (let line of content) {
 
-        // 🔥 new project only if clearly a title
+        
         if (isProjectTitle(line) && currentProject.length > 0) {
           documents.push(
             new Document({
@@ -91,9 +89,7 @@ export function chunkResumeText(cleanText) {
         );
       }
     }
-    // =========================
-    // 🧠 SKILLS (FULL BLOCK)
-    // =========================
+    
     else if (section === "skills") {
       documents.push(
         new Document({
@@ -103,9 +99,7 @@ export function chunkResumeText(cleanText) {
       );
     }
 
-    // =========================
-    // 🏆 ACHIEVEMENTS + LEADERSHIP
-    // =========================
+    
     else if (
       section === "achievements" ||
       section === "leadership and volunteering"
@@ -118,9 +112,7 @@ export function chunkResumeText(cleanText) {
       );
     }
 
-    // =========================
-    // 📄 GENERAL / EDUCATION / OTHERS
-    // =========================
+  
     else {
       documents.push(
         new Document({

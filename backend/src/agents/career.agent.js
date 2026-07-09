@@ -22,7 +22,7 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
 
   console.log('historyText: ', historyText)
 
-  // 🔹 STEP 1: Resume Context
+  
   sendEvent?.("agent_step", { tool: "resume", status: "start" });
   const resumeContext = await ResumeSummary.findOne({ userId });
   sendEvent?.("agent_step", { tool: "resume", status: "end" });
@@ -31,7 +31,7 @@ export const runAgent = async (userId, query, sendEvent, memory = {}) => {
     return { type: "jobs", recommended_roles: [] };
   }
 
-  // 🔹 STEP 2: Jobs
+  
   sendEvent?.("agent_step", { tool: "jobs", status: "start" });
   const roles = await extractRolesFromResume(resumeContext, query);
   const safeRoles = roles.length ? roles : ["Software Engineer"];
@@ -66,23 +66,23 @@ Certifications: ${summary.certifications}
   console.log('resume signal: ', resumeSignal);
 
 
-  // 🔹 STEP 3: Semantic Matching
+  
   const matchedJobs = await matchJobs(resumeSignal, jobs);
 
   console.log("💼 Jobs fetched:", jobs);
   console.log("📊 Matched jobs:", matchedJobs);
 
-  // 🔹 STEP 4: Missing Skills
+  
   const missingSkills = await suggestImprovements(resumeSignal, jobs);
   console.log('missingSkills: ', missingSkills);
 
 
-  // 🔥 Limit jobs for LLM
+  
   const topJobs = matchedJobs.slice(0, 5);
   console.log('Topjobs: ', topJobs)
 
 
-  // 🔥 Compact jobs
+  
   const compactJobs = topJobs.map(j => ({
     title: j.title,
     company: j.company,
@@ -93,7 +93,7 @@ Certifications: ${summary.certifications}
 
   console.log('Compactjobs: ', compactJobs)
 
-  // 🔹 STEP 5: Prompt
+  
   const prompt = `
 You are an AI career assistant.
 
@@ -147,7 +147,7 @@ Return JSON ONLY:
 }
 `;
 
-  // 🔹 STEP 6: LLM CALL
+  
   const raw = await geminiCall(prompt);
   console.log('gemini_res_raw', raw)
 
@@ -183,7 +183,6 @@ Return JSON ONLY:
     };
   }
 
-  // 🔥 Inject confidence BEFORE validation
   const enrichedBeforeValidation = {
     type: "jobs",
     recommended_roles: (parsed.recommended_roles || []).map(job => ({
@@ -195,7 +194,6 @@ Return JSON ONLY:
     }))
   };
 
-  // ✅ NOW validate
   const validated = ResponseSchema.safeParse(enrichedBeforeValidation);
 
   if (!validated.success) {
@@ -221,7 +219,6 @@ Return JSON ONLY:
     };
   }
 
-  // ✅ SORT AFTER VALIDATION
   const sorted = validated.data.recommended_roles.sort(
     (a, b) => b.confidence_score - a.confidence_score
   );

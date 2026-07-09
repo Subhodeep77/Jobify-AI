@@ -5,7 +5,7 @@ import { uploadResume } from "../controllers/resume.controller.js";
 
 const router = express.Router();
 
-// 🔹 Multer config
+
 const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
@@ -16,7 +16,7 @@ const upload = multer({
   }
 });
 
-// 🔹 Upload resume (protected route)
+
 router.post(
   "/upload",
   authMiddleware,

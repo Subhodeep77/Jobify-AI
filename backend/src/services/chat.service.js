@@ -9,7 +9,7 @@ export const handleChatFlow = async (
 ) => {
   sendEvent?.("agent_step", { tool: "chat", status: "start" });
 
-  // 🔹 STEP 1: Fetch resume summary
+  
   const summaryDoc = await ResumeSummary.findOne({ userId });
 
   if (!summaryDoc || !summaryDoc.summary) {
@@ -22,7 +22,7 @@ export const handleChatFlow = async (
   const summary = summaryDoc.summary;
   console.log('Resume summary: ', summary);
 
-  // 🔹 STEP 2: Format summary (important)
+  
   const summaryText = `
 Description: ${summary.description}
 
@@ -39,14 +39,14 @@ Achievements: ${summary.achievements}
 Certifications: ${summary.certifications}
 `;
 
-  // 🔹 STEP 3: Conversation history
+  
   const historyText = (memory.history || [])
     .slice(-6)
     .filter(m => m.role !== "system")
     .map(m => `${m.role}: ${m.content}`)
     .join("\n");
 
-  // 🔹 STEP 4: Prompt
+  
   const prompt = `
 You are an AI resume assistant.
 

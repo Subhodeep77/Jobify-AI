@@ -1,6 +1,5 @@
 import { geminiCall } from "../../config/gemini.js";
 
-// 🔥 MAIN FUNCTION (returns final search query string)
 export const parseJobQuery = async (roles = [], userMessage = "") => {
     try {
         const rolesText = roles.length ? roles.join(" OR ") : "Software Engineer";
@@ -42,11 +41,11 @@ A single clean job search query string
         }
 
         const query = raw
-            .replace(/```.*?```/gs, "")   // remove code blocks
-            .replace(/^[^a-zA-Z]+/, "")   // remove junk prefix
+            .replace(/```.*?```/gs, "")   
+            .replace(/^[^a-zA-Z]+/, "")  
             .replace(/["']/g, "")
             .trim()
-            .replace(/\.$/, "");          // remove trailing dot
+            .replace(/\.$/, "");          
 
         console.log("[FINAL QUERY]:", query);
 
