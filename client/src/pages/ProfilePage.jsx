@@ -13,10 +13,8 @@ const ProfilePage = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-
       {/* 🔹 Top Banner */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-
         {/* 🔹 LEFT (Home) */}
         <div className="w-30 flex justify-start">
           <Link
@@ -57,14 +55,11 @@ const ProfilePage = () => {
             <MessageSquare size={18} />
           </Link>
         </div>
-
       </div>
 
       {/* 🔹 Main Content */}
       <div className="flex-1 flex items-center justify-center px-4">
-
         <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 border border-gray-100 dark:border-gray-700 text-center">
-
           {/* Avatar */}
           <div className="w-20 h-20 mx-auto rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold text-gray-800 dark:text-gray-200">
             {getInitials(user?.name)}
@@ -79,6 +74,22 @@ const ProfilePage = () => {
             {user?.email}
           </p>
 
+          <hr className="my-6 border-gray-200 dark:border-gray-700" />
+
+          <h3 className="text-left text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            Account
+          </h3>
+
+          <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            <span>Edit Profile</span>
+            <span>✏️</span>
+          </button>
+
+          <button className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            <span>Change Password</span>
+            <span>🔒</span>
+          </button>
+
           {/* Logout */}
           <button
             onClick={logout}
@@ -86,11 +97,8 @@ const ProfilePage = () => {
           >
             Logout
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 };
