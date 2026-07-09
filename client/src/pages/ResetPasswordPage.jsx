@@ -42,8 +42,10 @@ const ResetPasswordPage = () => {
     setApiError("");
     setSuccess("");
 
-    const { success: isValid, errors: validationErrors } =
-      validateWithZod(resetPasswordSchema, form);
+    const { success: isValid, errors: validationErrors } = validateWithZod(
+      resetPasswordSchema,
+      form,
+    );
 
     if (!isValid) {
       setErrors(validationErrors);
@@ -60,9 +62,11 @@ const ResetPasswordPage = () => {
       setSuccess("Password reset successful. Redirecting to login...");
 
       setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
+        navigate("/login", { replace: true });
+      }, 1500);
     } catch (err) {
       setApiError(err?.message || "Reset failed. Try again.");
     } finally {
@@ -73,7 +77,6 @@ const ResetPasswordPage = () => {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
-
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -99,51 +102,59 @@ const ResetPasswordPage = () => {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {success ? (
+          <div className="text-center space-y-4">
+            <div className="text-sm text-green-700 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 px-3 py-2 rounded-lg">
+              ✓ {success}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <PasswordInput
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              error={errors.password}
+              label="New Password"
+              required
+            />
 
-          <PasswordInput
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-            label="New Password"
-            required
-          />
+            <PasswordInput
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              label="Confirm Password"
+              required
+            />
 
-          <PasswordInput
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            label="Confirm Password"
-            required
-          />
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium hover:bg-gray-900 dark:hover:bg-gray-200 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            {loading ? (
-              <Loader size={18} className="text-white dark:text-black" />
-            ) : (
-              "Reset Password"
-            )}
-          </button>
-        </form>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium hover:bg-gray-900 dark:hover:bg-gray-200 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {loading ? (
+                <Loader size={18} className="text-white dark:text-black" />
+              ) : (
+                "Reset Password"
+              )}
+            </button>
+          </form>
+        )}
 
         {/* Footer */}
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
-          Back to{" "}
-          <Link
-            to="/login"
-            className="text-black dark:text-white font-medium hover:underline"
-          >
-            Login
-          </Link>
-        </p>
-
+        {!success && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
+            Back to{" "}
+            <Link
+              to="/login"
+              className="text-black dark:text-white font-medium hover:underline"
+            >
+              Login
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );
