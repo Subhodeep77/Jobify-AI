@@ -49,6 +49,9 @@ Answer: CHAT
 Query: "Summarize my projects"
 Answer: CHAT
 
+Query: "Don't my resume matches for devops or any other roles?"
+Answer: CHAT
+
 Now classify:
 
 Query: "${query}"
