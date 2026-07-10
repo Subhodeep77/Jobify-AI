@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
 
-    window.location.href = "/login"; // hard redirect (safe)
+    window.location.href = "/login";
   };
 
   return (

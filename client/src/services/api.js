@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// 🔹 Request Interceptor (Attach Token)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -24,12 +23,26 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🔹 Response Interceptor (Handle 401)
+
 api.interceptors.response.use(
   (response) => response.data,
+
   (error) => {
-    if (error.response?.status === 401) {
-      // 🔥 Auto logout on invalid/expired token
+    const status = error.response?.status;
+    const url = error.config?.url || "";
+
+    const publicRoutes = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/forgot-password",
+      "/auth/reset-password",
+    ];
+
+    const isPublicRoute = publicRoutes.some((route) =>
+      url.startsWith(route)
+    );
+
+    if (status === 401 && !isPublicRoute) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
@@ -37,9 +50,10 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(
-      error.response?.data || { message: "Something went wrong" }
+      error.response?.data || {
+        message: "Something went wrong",
+      }
     );
   }
 );
-
 export default api;

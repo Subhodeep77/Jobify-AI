@@ -22,7 +22,7 @@ const LoginPage = () => {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Handle Input
+  
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -35,7 +35,6 @@ const LoginPage = () => {
     }));
   };
 
-  // 🔹 Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
