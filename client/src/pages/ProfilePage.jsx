@@ -80,15 +80,21 @@ const ProfilePage = () => {
             Account
           </h3>
 
-          <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+          <Link
+            to="/profile/edit"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
             <span>Edit Profile</span>
             <span>✏️</span>
-          </button>
+          </Link>
 
-          <button className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+          <Link
+            to="/profile/change-password"
+            className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
             <span>Change Password</span>
             <span>🔒</span>
-          </button>
+          </Link>
 
           {/* Logout */}
           <button

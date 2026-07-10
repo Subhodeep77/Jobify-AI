@@ -7,6 +7,8 @@ import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ChatPage from "./pages/ChatPage";
 import HomePage from "./pages/HomePage.jsx";
+import EditProfilePage from "./pages/EditProfilePage.jsx";
+import ChangePasswordPage from "./pages/ChangePasswordPage.jsx";
 
 function App() {
   return (
@@ -26,6 +28,24 @@ function App() {
           }
         />
         <Route
+          path="/profile/edit"
+          element={
+            <ProtectedRoute>
+              <EditProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/chat"
           element={
             <ProtectedRoute>
@@ -33,7 +53,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
     </BrowserRouter>
   );
