@@ -239,7 +239,7 @@ export const changePassword = async (req, res) => {
     const isMatch = await user.comparePassword(currentPassword);
 
     if (!isMatch) {
-      return res.status(401).json({
+      return res.status(400).json({
         message: "Current password is incorrect",
       });
     }
