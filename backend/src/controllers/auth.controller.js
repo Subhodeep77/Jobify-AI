@@ -27,7 +27,6 @@ export const registerUser = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
-    console.log("Request body:", req.body);
 
     const userExists = await User.findOne({ email: normalizedEmail });
 
@@ -41,11 +40,9 @@ export const registerUser = async (req, res) => {
       password
     });
 
-    console.log("User created");
 
     const token = generateToken(newUser._id, newUser.email);
 
-    console.log("JWT generated");
 
     newUser.password = undefined;
 
