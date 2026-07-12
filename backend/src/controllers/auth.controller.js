@@ -106,7 +106,7 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "If this email exists, a reset link has been sent"
       });
     }
@@ -134,7 +134,7 @@ export const forgotPassword = async (req, res) => {
       text: `Reset your password using this link:\n\n${resetUrl}\n\nThis link expires in 15 minutes.`,
     });
 
-    return res.json({
+    return res.status(200).json({
       message: "If this email exists, a reset link has been sent"
     });
 
