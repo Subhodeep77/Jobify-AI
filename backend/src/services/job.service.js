@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const fetchJobs = async (query) => {
-  console.log("serpapi is going to be hit.")
+  
   try {
     const res = await axios.get("https://serpapi.com/search.json", {
       params: {
@@ -10,8 +10,6 @@ export const fetchJobs = async (query) => {
         api_key: process.env.SERP_API_KEY
       }
     });
-
-    console.log("FULL SERP RESPONSE:", JSON.stringify(res.data, null, 2));
 
 
     const jobs = res.data.jobs_results || [];
@@ -34,7 +32,7 @@ export const fetchJobs = async (query) => {
         source: "serpapi",
       }));
 
-    console.log('cleaned Jobs: ', cleanedJobs)
+    
 
     return cleanedJobs;
 
