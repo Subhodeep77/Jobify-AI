@@ -59,7 +59,6 @@ Return JSON:
 
     const raw = await geminiCall(prompt);
 
-    // 🔹 Clean response
     const cleaned = raw
       .replace(/```json|```/g, "")
       .replace(/^[^\{]*\{/s, "{")
