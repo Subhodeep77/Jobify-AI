@@ -90,29 +90,7 @@ export function chunkResumeText(cleanText) {
       }
     }
     
-    else if (section === "skills") {
-      documents.push(
-        new Document({
-          pageContent: content.join("\n"),
-          metadata: { section }
-        })
-      );
-    }
-
     
-    else if (
-      section === "achievements" ||
-      section === "leadership and volunteering"
-    ) {
-      documents.push(
-        new Document({
-          pageContent: content.join("\n"),
-          metadata: { section }
-        })
-      );
-    }
-
-  
     else {
       documents.push(
         new Document({
