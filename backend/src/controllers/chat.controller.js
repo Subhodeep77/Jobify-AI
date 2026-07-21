@@ -12,7 +12,7 @@ export const chatStream = async (req, res) => {
     const userId = req.user._id;
     const message = req.body.message;
 
-    
+
     let memory = await Memory.findOne({ userId });
 
     if (!memory) {
@@ -28,13 +28,13 @@ export const chatStream = async (req, res) => {
       res.write(`data: ${JSON.stringify({ event, data })}\n\n`);
     };
 
-    
+
     const intent = await classifyIntent(message);
     console.log("[INTENT]:", intent);
 
     let result;
 
-    
+
     if (intent === "JOB") {
       result = await executeAgent(
         userId,
@@ -55,7 +55,7 @@ export const chatStream = async (req, res) => {
       );
     }
 
-    
+
     memory.messages.push(
       {
         role: "user",
@@ -64,7 +64,7 @@ export const chatStream = async (req, res) => {
         data: null,
       },
 
-      
+
       result?.type === "chat"
         ? {
           role: "assistant",
@@ -73,7 +73,7 @@ export const chatStream = async (req, res) => {
           data: null,
         }
 
-        
+
         : result?.type === "jobs"
           ? {
             role: "assistant",
@@ -82,7 +82,7 @@ export const chatStream = async (req, res) => {
             data: result.recommended_roles || [],
           }
 
-          
+
           : {
             role: "assistant",
             type: "chat",
@@ -90,17 +90,20 @@ export const chatStream = async (req, res) => {
             data: null,
           }
     );
-    
+
     memory.messages = memory.messages.slice(-20);
 
     await memory.save();
 
-    
+
     sendEvent("done", result);
     res.end();
 
   } catch (error) {
-    console.error("Chat stream error:", error);
+    sendEvent("error", {
+      message: "Internal server error"
+    });
+
     res.end();
   }
 };
@@ -116,7 +119,7 @@ export const getChatHistory = async (req, res) => {
     }
 
     return res.json({
-      messages: memory.messages, 
+      messages: memory.messages,
     });
 
   } catch (error) {
