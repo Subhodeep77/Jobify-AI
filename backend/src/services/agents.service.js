@@ -6,5 +6,5 @@ export const executeAgent = async (
   sendEvent,
   memory = {}
 ) => {
-  return await runAgent(userId, message, sendEvent, memory);
+  return runAgent(userId, message, sendEvent, memory);
 };

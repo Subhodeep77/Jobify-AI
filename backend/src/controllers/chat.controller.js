@@ -4,6 +4,15 @@ import { handleChatFlow } from "../services/chat.service.js";
 import Memory from "../models/memory.model.js";
 
 export const chatStream = async (req, res) => {
+
+  const sendEvent = (event, data) => {
+    if (!res.writableEnded) {
+      res.write(
+        `data: ${JSON.stringify({ event, data })}\n\n`
+      );
+    }
+  };
+
   try {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
@@ -23,10 +32,6 @@ export const chatStream = async (req, res) => {
     }
 
     const recentMessages = memory.messages.slice(-10);
-
-    const sendEvent = (event, data) => {
-      res.write(`data: ${JSON.stringify({ event, data })}\n\n`);
-    };
 
 
     const intent = await classifyIntent(message);
@@ -54,7 +59,41 @@ export const chatStream = async (req, res) => {
         }
       );
     }
+    if (
+      result?.type === "jobs" &&
+      (!result.recommended_roles || result.recommended_roles.length === 0)
+    ) {
+      result = {
+        type: "chat",
+        answer:
+          "No job recommendations could be generated at the moment. Please try again later.",
+      };
+    }
 
+    const assistantMessage =
+      result?.type === "jobs"
+        ? {
+          role: "assistant",
+          type: "jobs",
+          content: null,
+          data: result.recommended_roles,
+        }
+        : result?.type === "chat"
+          ? {
+            role: "assistant",
+            type: "chat",
+            content:
+              result.answer ||
+              "AI service is temporarily unavailable. Please try again in a moment.",
+            data: null,
+          }
+          : {
+            role: "assistant",
+            type: "chat",
+            content:
+              "⚠️ Unexpected response from server. Please try again.",
+            data: null,
+          };
 
     memory.messages.push(
       {
@@ -63,32 +102,7 @@ export const chatStream = async (req, res) => {
         content: message,
         data: null,
       },
-
-
-      result?.type === "chat"
-        ? {
-          role: "assistant",
-          type: "chat",
-          content: result.answer || "No response generated",
-          data: null,
-        }
-
-
-        : result?.type === "jobs"
-          ? {
-            role: "assistant",
-            type: "jobs",
-            content: null,
-            data: result.recommended_roles || [],
-          }
-
-
-          : {
-            role: "assistant",
-            type: "chat",
-            content: "⚠️ Unexpected response from server. Please try again.",
-            data: null,
-          }
+      assistantMessage
     );
 
     memory.messages = memory.messages.slice(-20);
@@ -101,6 +115,7 @@ export const chatStream = async (req, res) => {
 
   } catch (error) {
     sendEvent("error", {
+      success: false,
       message: "Internal server error"
     });
 
