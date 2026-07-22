@@ -127,12 +127,16 @@ export const forgotPassword = async (req, res) => {
     }
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    console.log("Before sendEmail");
 
     await sendEmail({
       to: user.email,
       subject: "Password Reset Request",
       text: `Reset your password using this link:\n\n${resetUrl}\n\nThis link expires in 15 minutes.`,
     });
+
+    console.log("After sendEmail");
+
 
     return res.status(200).json({
       message: "If this email exists, a reset link has been sent"
